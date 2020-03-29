@@ -40,9 +40,9 @@ public class CoronaVirusDataService {
     @Scheduled(cron = "* * 1 * * *")
     public void fetchVirusData() {
         try {
-            HttpResponse<String> httpResponse = getVirusData();
-            Iterable<CSVRecord> records = getCsvRecords(httpResponse);
-            populateData(records);
+            HttpResponse<String> httpResponse = downloadVirusData();
+            Iterable<CSVRecord> records = convertDataToCsv(httpResponse);
+            populateListData(records);
         } catch (NullPointerException | NumberFormatException | InterruptedException | IOException e) {
             log.severe("could not parse data, will not update: " + e.getLocalizedMessage());
             e.printStackTrace();
@@ -55,7 +55,7 @@ public class CoronaVirusDataService {
      * @throws IOException
      * @throws InterruptedException
      */
-    private HttpResponse<String> getVirusData() throws IOException, InterruptedException {
+    private HttpResponse<String> downloadVirusData() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(VIRUS_DATA_URL))
                 .build();
@@ -71,7 +71,7 @@ public class CoronaVirusDataService {
      * @return
      * @throws IOException
      */
-    private Iterable<CSVRecord> getCsvRecords(@NonNull HttpResponse<String> httpResponse) throws IOException {
+    private Iterable<CSVRecord> convertDataToCsv(@NonNull HttpResponse<String> httpResponse) throws IOException {
         StringReader csvBodyReader = new StringReader(httpResponse.body());
         Iterable<CSVRecord> records = null;
         records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
@@ -84,7 +84,7 @@ public class CoronaVirusDataService {
      * @param records
      * @throws NumberFormatException
      */
-    private void populateData(Iterable<CSVRecord> records) throws NumberFormatException {
+    private void populateListData(Iterable<CSVRecord> records) throws NumberFormatException {
         List<LocationStats> tmpAllStats = new ArrayList<>();
         for (CSVRecord record : records) {
             String state = record.get("Province/State");
