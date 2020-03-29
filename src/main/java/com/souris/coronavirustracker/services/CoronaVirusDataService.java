@@ -42,7 +42,6 @@ public class CoronaVirusDataService {
         try {
             HttpResponse<String> httpResponse = getVirusData();
             Iterable<CSVRecord> records = getCsvRecords(httpResponse);
-            allStats.clear();
             populateData(records);
         } catch (NullPointerException | NumberFormatException | InterruptedException | IOException e) {
             log.severe("could not parse data, will not update: " + e.getLocalizedMessage());
@@ -81,11 +80,12 @@ public class CoronaVirusDataService {
     }
 
     /**
-     * 
+     *
      * @param records
      * @throws NumberFormatException
      */
     private void populateData(Iterable<CSVRecord> records) throws NumberFormatException {
+        List<LocationStats> tmpAllStats = new ArrayList<>();
         for (CSVRecord record : records) {
             String state = record.get("Province/State");
             String country = record.get("Country/Region");
@@ -97,8 +97,9 @@ public class CoronaVirusDataService {
                     .latestTotalCases(total)
                     .diffFromPreDay(total - preTotal)
                     .build();
-            allStats.add(locationStat);
+            tmpAllStats.add(locationStat);
         }
+        allStats = tmpAllStats;
     }
 
 }
