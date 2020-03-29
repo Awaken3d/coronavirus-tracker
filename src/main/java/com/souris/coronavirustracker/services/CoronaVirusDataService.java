@@ -40,8 +40,8 @@ public class CoronaVirusDataService {
     @Scheduled(cron = "* * 1 * * *")
     public void fetchVirusData() {
         try {
-            HttpResponse<String> httpResponse = downloadVirusData();
-            Iterable<CSVRecord> records = convertDataToCsv(httpResponse);
+            String virusData = downloadVirusData();
+            Iterable<CSVRecord> records = convertDataToCsv(virusData);
             populateListData(records);
         } catch (NullPointerException | NumberFormatException | InterruptedException | IOException e) {
             log.severe("could not parse data, will not update: " + e.getLocalizedMessage());
@@ -55,24 +55,24 @@ public class CoronaVirusDataService {
      * @throws IOException
      * @throws InterruptedException
      */
-    private HttpResponse<String> downloadVirusData() throws IOException, InterruptedException {
+    private String downloadVirusData() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(VIRUS_DATA_URL))
                 .build();
         HttpResponse<String> httpResponse = null;
         httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        return httpResponse;
+        return httpResponse.body();
     }
 
     /**
      *
-     * @param httpResponse
+     * @param virusData
      * @return
      * @throws IOException
      */
-    private Iterable<CSVRecord> convertDataToCsv(@NonNull HttpResponse<String> httpResponse) throws IOException {
-        StringReader csvBodyReader = new StringReader(httpResponse.body());
+    private Iterable<CSVRecord> convertDataToCsv(@NonNull String virusData) throws IOException {
+        StringReader csvBodyReader = new StringReader(virusData);
         Iterable<CSVRecord> records = null;
         records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
 
