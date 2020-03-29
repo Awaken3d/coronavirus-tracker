@@ -50,6 +50,12 @@ public class CoronaVirusDataService {
         }
     }
 
+    /**
+     *
+     * @return
+     * @throws IOException
+     * @throws InterruptedException
+     */
     private HttpResponse<String> getVirusData() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(VIRUS_DATA_URL))
@@ -60,6 +66,12 @@ public class CoronaVirusDataService {
         return httpResponse;
     }
 
+    /**
+     *
+     * @param httpResponse
+     * @return
+     * @throws IOException
+     */
     private Iterable<CSVRecord> getCsvRecords(@NonNull HttpResponse<String> httpResponse) throws IOException {
         StringReader csvBodyReader = new StringReader(httpResponse.body());
         Iterable<CSVRecord> records = null;
@@ -68,6 +80,10 @@ public class CoronaVirusDataService {
         return records;
     }
 
+    /**
+     *
+     * @param records
+     */
     private void populateData(Iterable<CSVRecord> records) {
         for (CSVRecord record : records) {
             String state = record.get("Province/State");

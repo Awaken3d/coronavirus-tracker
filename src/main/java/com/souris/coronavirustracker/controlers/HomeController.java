@@ -15,6 +15,11 @@ public class HomeController {
     @Autowired
     CoronaVirusDataService coronaVirusDataService;
 
+    /**
+     *
+     * @param model
+     * @return
+     */
     @GetMapping("/")
     public String home(Model model) {
         List<LocationStats> allStats = coronaVirusDataService.getAllStats();
