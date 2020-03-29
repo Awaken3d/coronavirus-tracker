@@ -16,7 +16,6 @@ import java.security.cert.X509Certificate;
 
 @Configuration
 @Log
-@Getter
 public class AppConfig {
 
     @Bean
