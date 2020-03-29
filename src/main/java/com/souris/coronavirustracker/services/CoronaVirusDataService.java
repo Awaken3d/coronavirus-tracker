@@ -44,7 +44,7 @@ public class CoronaVirusDataService {
             Iterable<CSVRecord> records = getCsvRecords(httpResponse);
             allStats.clear();
             populateData(records);
-        } catch (NullPointerException | InterruptedException | IOException e) {
+        } catch (NullPointerException | NumberFormatException | InterruptedException | IOException e) {
             log.severe("could not parse data, will not update: " + e.getLocalizedMessage());
             e.printStackTrace();
         }
@@ -81,10 +81,11 @@ public class CoronaVirusDataService {
     }
 
     /**
-     *
+     * 
      * @param records
+     * @throws NumberFormatException
      */
-    private void populateData(Iterable<CSVRecord> records) {
+    private void populateData(Iterable<CSVRecord> records) throws NumberFormatException {
         for (CSVRecord record : records) {
             String state = record.get("Province/State");
             String country = record.get("Country/Region");
