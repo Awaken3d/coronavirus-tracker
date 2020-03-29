@@ -39,41 +39,32 @@ public class CoronaVirusDataService {
     @PostConstruct
     @Scheduled(cron = "* * 1 * * *")
     public void fetchVirusData() {
-        HttpResponse<String> httpResponse = getVirusData();
         try {
+            HttpResponse<String> httpResponse = getVirusData();
             Iterable<CSVRecord> records = getCsvRecords(httpResponse);
             allStats.clear();
             populateData(records);
-        } catch (NullPointerException e) {
+        } catch (NullPointerException | InterruptedException | IOException e) {
             log.severe("could not parse data, will not update: " + e.getLocalizedMessage());
+            e.printStackTrace();
         }
     }
 
-    private HttpResponse<String> getVirusData() {
+    private HttpResponse<String> getVirusData() throws IOException, InterruptedException {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(VIRUS_DATA_URL))
                 .build();
-
         HttpResponse<String> httpResponse = null;
-        try {
-            httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
-        } catch (IOException e) {
-            log.severe("encountered IOException: " + e.getLocalizedMessage());
-        } catch (InterruptedException e) {
-            log.severe("encountered InterruptedException: " + e.getLocalizedMessage());
-        }
+        httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+
         return httpResponse;
     }
 
-    private Iterable<CSVRecord> getCsvRecords(@NonNull HttpResponse<String> httpResponse) {
-
+    private Iterable<CSVRecord> getCsvRecords(@NonNull HttpResponse<String> httpResponse) throws IOException {
         StringReader csvBodyReader = new StringReader(httpResponse.body());
         Iterable<CSVRecord> records = null;
-        try {
-            records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
-        } catch (IOException e) {
-            log.severe("could not parse response: " + e.getLocalizedMessage());
-        }
+        records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
+
         return records;
     }
 
@@ -81,8 +72,8 @@ public class CoronaVirusDataService {
         for (CSVRecord record : records) {
             String state = record.get("Province/State");
             String country = record.get("Country/Region");
-            int total = record.get(record.size() - 1) == null? 0 : Integer.parseInt(record.get(record.size() - 1));
-            int preTotal = record.get(record.size() - 1) == null? 0 : Integer.parseInt(record.get(record.size() - 2));
+            int total = record.get(record.size() - 1) == null ? 0 : Integer.parseInt(record.get(record.size() - 1));
+            int preTotal = record.get(record.size() - 1) == null ? 0 : Integer.parseInt(record.get(record.size() - 2));
             LocationStats locationStat = LocationStats.builder()
                     .state(state)
                     .country(country)
