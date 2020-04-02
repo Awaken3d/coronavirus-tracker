@@ -28,8 +28,8 @@ public class CoronaVirusDataService {
 
     @Value("${corona.url}")
     private String VIRUS_DATA_URL;
-    private final String provinceHeader = "Province/State";
-    private final String countryHeader = "Country/Region";
+    private final String PROVINCE_HEADER = "Province/State";
+    private final String COUNTRY_HEADER = "Country/Region";
     private HttpClient client;
     private List<LocationStats> allStats = new ArrayList<>();
 
@@ -89,9 +89,9 @@ public class CoronaVirusDataService {
             int lastEntry = record.size() - 1;
             int secondToLastEntry = record.size() - 2;
 
-            String state = record.get(provinceHeader);
-            String country = record.get(countryHeader);
-            
+            String state = record.get(PROVINCE_HEADER);
+            String country = record.get(COUNTRY_HEADER);
+
             int total = record.get(lastEntry) == null ? 0 : Integer.parseInt(record.get(lastEntry));
             int preTotal = record.get(lastEntry) == null ? 0 : Integer.parseInt(record.get(secondToLastEntry));
             LocationStats locationStat = LocationStats.builder()
