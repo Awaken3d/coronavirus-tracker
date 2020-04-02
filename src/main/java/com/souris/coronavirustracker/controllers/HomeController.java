@@ -1,4 +1,4 @@
-package com.souris.coronavirustracker.controlers;
+package com.souris.coronavirustracker.controllers;
 
 import com.souris.coronavirustracker.models.LocationStats;
 import com.souris.coronavirustracker.services.CoronaVirusDataService;
