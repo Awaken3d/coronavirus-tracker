@@ -89,8 +89,10 @@ public class CoronaVirusDataService {
         for (CSVRecord record : records) {
             String state = record.get("Province/State");
             String country = record.get("Country/Region");
-            int total = record.get(record.size() - 1) == null ? 0 : Integer.parseInt(record.get(record.size() - 1));
-            int preTotal = record.get(record.size() - 1) == null ? 0 : Integer.parseInt(record.get(record.size() - 2));
+            int lastEntry = record.size() - 1;
+            int secondToLastEntry = record.size() - 2;
+            int total = record.get(lastEntry) == null ? 0 : Integer.parseInt(record.get(lastEntry));
+            int preTotal = record.get(lastEntry) == null ? 0 : Integer.parseInt(record.get(secondToLastEntry));
             LocationStats locationStat = LocationStats.builder()
                     .state(state)
                     .country(country)
