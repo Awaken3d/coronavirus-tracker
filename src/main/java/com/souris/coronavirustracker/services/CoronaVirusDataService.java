@@ -28,7 +28,8 @@ public class CoronaVirusDataService {
 
     @Value("${corona.url}")
     private String VIRUS_DATA_URL;
-
+    private final String provinceHeader = "Province/State";
+    private final String countryHeader = "Country/Region";
     private HttpClient client;
     private List<LocationStats> allStats = new ArrayList<>();
 
@@ -59,8 +60,7 @@ public class CoronaVirusDataService {
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(VIRUS_DATA_URL))
                 .build();
-        HttpResponse<String> httpResponse = null;
-        httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
+        HttpResponse<String> httpResponse = client.send(request, HttpResponse.BodyHandlers.ofString());
 
         return httpResponse.body();
     }
@@ -73,8 +73,7 @@ public class CoronaVirusDataService {
      */
     private Iterable<CSVRecord> convertDataToCsv(@NonNull String virusData) throws IOException {
         StringReader csvBodyReader = new StringReader(virusData);
-        Iterable<CSVRecord> records = null;
-        records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
+        Iterable<CSVRecord> records = CSVFormat.DEFAULT.withFirstRecordAsHeader().parse(csvBodyReader);
 
         return records;
     }
@@ -87,10 +86,12 @@ public class CoronaVirusDataService {
     private void populateListData(Iterable<CSVRecord> records) throws NumberFormatException {
         List<LocationStats> tmpAllStats = new ArrayList<>();
         for (CSVRecord record : records) {
-            String state = record.get("Province/State");
-            String country = record.get("Country/Region");
             int lastEntry = record.size() - 1;
             int secondToLastEntry = record.size() - 2;
+
+            String state = record.get(provinceHeader);
+            String country = record.get(countryHeader);
+            
             int total = record.get(lastEntry) == null ? 0 : Integer.parseInt(record.get(lastEntry));
             int preTotal = record.get(lastEntry) == null ? 0 : Integer.parseInt(record.get(secondToLastEntry));
             LocationStats locationStat = LocationStats.builder()
